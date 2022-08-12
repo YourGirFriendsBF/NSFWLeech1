@@ -292,6 +292,7 @@ def get_content_type(link: str) -> str:
         except:
             content_type = None
     return content_type
+
 ONE, TWO, THREE, FOUR = range(4)
 def pop_up_stats(update, context):
     query = update.callback_query
