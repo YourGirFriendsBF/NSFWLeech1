@@ -44,15 +44,15 @@ def stats(update, context):
     mem_t = get_readable_file_size(memory.total)
     mem_a = get_readable_file_size(memory.available)
     mem_u = get_readable_file_size(memory.used)
-    stats = f'<b><i><u>NSFW Mirror Bot Statistics</u></i></b>\n\n'\
-            f'<b>RAM</b>: {progress_bar(mem_p)} {mem_p}%\n' \
-            f'<b>DISK</b>: {progress_bar(disk)} {disk}%\n\n' \
-            f'<b>Updated:</b> {last_commit}\n'\
-            f'<b>I am Working For:</b> <code>{currentTime}</code>\n\n'\
+    stats = f'<b><i><u>Dhruv Mirror Bot Statistics</u></i></b>\n\n'\
+            f'<b>Updated:</b> <code>{last_commit}</code>\n'\
+            f'<b>I am Working For:</b> <code>{currentTime}</code>\n'\
             f'<b>Total Disk:</b> <code>{total}</code> [{disk}% In use]\n'\
             f'<b>Used:</b> <code>{used}</code> | <b>Free:</b> <code>{free}</code>\n'\
-            f'<b>T-UL:</b> <code>{sent}</code> | <b>T-DL:</b> <code>{recv}</code>\n'
-    sendMessage(stats, context.bot, update.message)
+            f'<b>T-Up:</b> <code>{sent}</code> | <b>T-Dn:</b> <code>{recv}</code>\n'\
+            f'<b>CPU Usage:</b> <code>{cpuUsage}</code>% | <b>RAM Usage:</b> <code>{mem_p}%</code>\n'
+    reply_message = sendMessage(stats, context.bot, update.message)
+    Thread(target=auto_delete_message, args=(context.bot, update.message, reply_message)).start()
 
 
 def start(update, context):
