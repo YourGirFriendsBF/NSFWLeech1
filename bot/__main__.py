@@ -44,7 +44,7 @@ def stats(update, context):
     mem_t = get_readable_file_size(memory.total)
     mem_a = get_readable_file_size(memory.available)
     mem_u = get_readable_file_size(memory.used)
-    stats = f'<b><i><u>{TITLE_NAME} Bot Statistics</u></i></b>\n\n'\
+    stats = f'<b><i><u>NSFW Mirror Bot Statistics</u></i></b>\n\n'\
             f'<b>CPU</b>:  {progress_bar(cpuUsage)} {cpuUsage}%\n' \
             f'<b>RAM</b>: {progress_bar(mem_p)} {mem_p}%\n' \
             f'<b>DISK</b>: {progress_bar(disk)} {disk}%\n\n' \
