@@ -164,7 +164,7 @@ def get_readable_message():
                 break
         if len(msg) == 0:
             return None, None
-        bmsg = f"\n<b>___________________________________</b>"
+        bmsg = f"\n<b>____________________________</b>"
         bmsg += f"\n<b>Disk:</b> <code>{get_readable_file_size(disk_usage(DOWNLOAD_DIR).free)}</code>"
         bmsg += f"<b> | UPTM:</b> <code>{get_readable_time(time() - botStartTime)}</code>"
         dlspeed_bytes = 0
@@ -182,14 +182,20 @@ def get_readable_message():
                 elif 'MB/s' in spd:
                     upspeed_bytes += float(spd.split('M')[0]) * 1048576
         bmsg += f"\n<b>DL:</b> {get_readable_file_size(dlspeed_bytes)}/s | <b>UL:</b> {get_readable_file_size(upspeed_bytes)}/s"
+        buttons = ButtonMaker()
+        buttons.sbutton("Statistics", str(FOUR))
+        sbutton = InlineKeyboardMarkup(buttons.build_menu(1))
+        if len(msg) == 0:
+            return None
         if STATUS_LIMIT is not None and tasks > STATUS_LIMIT:
-            msg += f"<b>Page:</b> {PAGE_NO}/{pages} | <b>Tasks:</b> {tasks}\n"
             buttons = ButtonMaker()
             buttons.sbutton("Previous", "status pre")
+            buttons.sbutton(f"{PAGE_NO}/{pages}", str(THREE))
             buttons.sbutton("Next", "status nex")
-            button = InlineKeyboardMarkup(buttons.build_menu(2))
+            buttons.sbutton("St", str(FOUR))
+            button = InlineKeyboardMarkup(buttons.build_menu(3))
             return msg + bmsg, button
-        return msg + bmsg, ""
+        return msg + bmsg, sbutton
 
 def turn(data):
     try:
@@ -286,4 +292,51 @@ def get_content_type(link: str) -> str:
         except:
             content_type = None
     return content_type
+ONE, TWO, THREE, FOUR = range(4)
+def pop_up_stats(update, context):
+    query = update.callback_query
+    stats = bot_sys_stats()
+    query.answer(text=stats, show_alert=True)
+def bot_sys_stats():
+    currentTime = get_readable_time(time() - botStartTime)
+    cpu = cpu_percent(interval=0.5)
+    memory = virtual_memory()
+    mem_p = memory.percent
+    total, used, free, disk = disk_usage('/')
+    total = get_readable_file_size(total)
+    used = get_readable_file_size(used)
+    free = get_readable_file_size(free)
+    sent = get_readable_file_size(net_io_counters().bytes_sent)
+    recv = get_readable_file_size(net_io_counters().bytes_recv)
+    num_active = 0
+    num_upload = 0
+    num_split = 0
+    num_extract = 0
+    num_archi = 0
+    tasks = len(download_dict)
+    for stats in list(download_dict.values()):
+        if stats.status() == MirrorStatus.STATUS_DOWNLOADING:
+            num_active += 1
+        if stats.status() == MirrorStatus.STATUS_UPLOADING:
+            num_upload += 1
+        if stats.status() == MirrorStatus.STATUS_ARCHIVING:
+            num_archi += 1
+        if stats.status() == MirrorStatus.STATUS_EXTRACTING:
+            num_extract += 1
+        if stats.status() == MirrorStatus.STATUS_SPLITTING:
+            num_split += 1
+    stats = f"""
+    BOT UPTIME: {currentTime}\n
+    CPU : {cpu}% || RAM : {mem_p}%\n
+    USED : {used} || FREE :{free}
+    SENT : {sent} || RECV : {recv}\n
+    ONGOING TASKS:
+    DL: {num_active} || UP : {num_upload} || SPLIT : {num_split}
+    ZIP : {num_archi} || UNZIP : {num_extract} || TOTAL : {tasks} 
+    """
+    return stats
 
+
+dispatcher.add_handler(
+    CallbackQueryHandler(pop_up_stats, pattern="^" + str(FOUR) + "$")
+)
